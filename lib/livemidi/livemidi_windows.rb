@@ -19,8 +19,9 @@ class LiveMidi
     C.midiOutClose(device_pointer)
   end
 
-  def message(first)
-    C.midiOutShortMsg(device_pointer, first)
+  def message(first, second = 0, third = 0)
+    message = first + (second << 8) + (third << 16)
+    C.midiOutShortMsg(device_pointer, message)
   end
 
   def device_pointer

@@ -45,6 +45,17 @@ describe "LiveMidi on Windows" do
       LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2)
       @livemidi.message(2)
     end
+
+    it "should byte push the second over the first message" do
+      LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2 + (3 << 8))
+      @livemidi.message(2,3)
+    end
+
+    it "should byte push the thirde over the first and second messages" do
+      LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2 + (3 << 8)+  (4 << 16))
+      @livemidi.message(2,3, 4)
+    end
+
   end
   
 end
