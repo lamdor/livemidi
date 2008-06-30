@@ -21,6 +21,8 @@ describe "LiveMidi on Windows" do
   before :each do
     @livemidi = LiveMidi.new
     @mock_device = mock("device")
+    @mock_device.stub!(:ptr).and_return("100")
+    @livemidi.instance_variable_set(:@device, @mock_device)
   end
 
   describe "#open" do
@@ -33,10 +35,15 @@ describe "LiveMidi on Windows" do
 
   describe "#close" do
     it "should call C.midiOutClose with the device it was created with" do
-      @livemidi.instance_variable_set(:@device, @mock_device)
-      @mock_device.should_receive(:ptr).and_return("100")
       LiveMidi::C.should_receive(:midiOutClose).with(100)
       @livemidi.close
+    end
+  end
+
+  describe "#message" do
+    it "should call C.midiOutShortMsg with the device and the integer passed in" do
+      LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2)
+      @livemidi.message(2)
     end
   end
   

@@ -16,6 +16,14 @@ class LiveMidi
   end
 
   def close
-    C.midiOutClose(@device.ptr.to_i)
+    C.midiOutClose(device_pointer)
+  end
+
+  def message(first)
+    C.midiOutShortMsg(device_pointer, first)
+  end
+
+  def device_pointer
+    @device.ptr.to_i
   end
 end
