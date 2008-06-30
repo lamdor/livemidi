@@ -50,5 +50,11 @@ describe LiveMidi do
     end
     
   end
+
+  describe "platform loading" do
+    it "should load livemidi_windows if the PLATFORM is a variant of windows"
+    it "should load livemidi_linux if the PLATFORM is a variant of linux"
+    it "should load livemidi_darwin if the PLATFORM is a variant of darwin/OSX"
+  end
   
 end
