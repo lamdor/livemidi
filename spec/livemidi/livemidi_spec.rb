@@ -40,5 +40,15 @@ describe LiveMidi do
     end
 
   end
+
+  describe "#program_change" do
+
+    it "should send a program change message on the correct channel with the passed preset" do
+      @livemidi.program_change(1, 20)
+      @livemidi.should have(1).sent_messages
+      @livemidi.sent_messages.should include([0xC0 | 1, 20])
+    end
+    
+  end
   
 end

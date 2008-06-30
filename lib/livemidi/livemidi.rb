@@ -9,5 +9,9 @@ class LiveMidi
   def note_off(channel, note, velocity = 64)
     message(OFF | channel, note, velocity)
   end
+
+  def program_change(channel, preset)
+    message(0xC0 | channel, preset)
+  end
   
 end

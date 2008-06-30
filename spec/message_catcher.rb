@@ -1,8 +1,8 @@
 module MessageCatcher
 
-  def message(first, second, third)
+  def message(*params)
     @sent_messages ||= []
-    @sent_messages << [first, second, third]
+    @sent_messages << params
   end
 
   def sent_messages
