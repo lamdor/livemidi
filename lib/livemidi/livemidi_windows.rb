@@ -19,8 +19,11 @@ class LiveMidi
     C.midiOutClose(device_pointer)
   end
 
-  def message(first, second = 0, third = 0)
-    message = first + (second << 8) + (third << 16)
+  def message(*to_send)
+    message = 0
+    to_send.each_with_index do |send, index| 
+      message += (send << (8 * index))
+    end
     C.midiOutShortMsg(device_pointer, message)
   end
 
