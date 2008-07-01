@@ -1,6 +1,5 @@
 require File.join(File.dirname(__FILE__), *%w[.. spec_helper])
 
-
 class LiveMidi
   module C
   end
@@ -49,6 +48,16 @@ describe "LiveMidi on Windows" do
     it "should byte push the second over the first message" do
       LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2 + (3 << 8))
       @livemidi.message(2,3)
+    end
+
+    it "should open if hasn't created a device yet" do
+      @livemidi.instance_variable_set(:@device, nil)
+
+      DL.stub!(:malloc).and_return(@mock_device)
+      LiveMidi::C.should_receive(:midiOutOpen).with(@mock_device, -1, 0, 0, 0)
+
+      LiveMidi::C.should_receive(:midiOutShortMsg).with(100, 2)
+      @livemidi.message(2)
     end
 
     it "should byte push the thirde over the first and second messages" do

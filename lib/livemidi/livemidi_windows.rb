@@ -28,6 +28,7 @@ class LiveMidi
   end
 
   def device_pointer
+    open unless @device
     @device.ptr.to_i
   end
 end
