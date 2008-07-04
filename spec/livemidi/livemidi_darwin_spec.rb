@@ -77,7 +77,7 @@ describe LiveMidi do
 
       @live_midi.open
 
-      @live_midi.instance_variable_get(:@output).should eql(@mock_output)
+      @live_midi.instance_variable_get(:@outport).should eql(@mock_output)
     end
 
     it "should get a destination" do
@@ -97,5 +97,61 @@ describe LiveMidi do
     
   end
 
+  describe "#close" do
+    
+    it "should dispose of the client" do
+      mock_client = mock("Client")
+      
+      live_midi = LiveMidi.new
+      live_midi.instance_variable_set(:@client, mock_client)
+
+      LiveMidi::C.should_receive(:mIDIClientDispose).with(mock_client)
+      
+      live_midi.close
+    end
+    
+  end
+
+  describe "#message" do
+
+    before :each do
+      @args = [144, 64]
+      @args.should
+      
+      @live_midi = LiveMidi.new
+      
+      @mock_packet_list_ptr = mock("Packet List Pointer")
+      @mock_packet_list = mock("Packet List")
+
+      LiveMidi::C.stub!(:mIDIPacketListInit).and_return(@mock_packet_list_ptr)
+      DL.stub!(:malloc).and_return(@mock_packet_list)
+      LiveMidi::C.stub!(:mIDIPacketListAdd).and_return(@mock_packet_list_ptr)
+      LiveMidi::C.stub!(:mIDISend)
+    end
+
+    it "should init a MIDI packet list of size 256" do
+      DL.should_receive(:malloc).with(256).and_return(@mock_packet_list)
+      LiveMidi::C.should_receive(:mIDIPacketListInit).with(@mock_packet_list).and_return(@mock_packet_list_ptr)
+
+     @live_midi.message(*@args)
+    end
+
+    it "should add the unpacked arguments to the MIDI packet list" do
+      bytes = @args.pack("CC").to_ptr
+      LiveMidi::C.should_receive(:mIDIPacketListAdd).with(@mock_packet_list, 256, @mock_packet_list_ptr, 0, 0, 2, anything()).and_return(@mock_packet_list_ptr)
+      @live_midi.message(*@args)
+    end
+
+    it "should send the packet list to the outport and destination" do
+      mock_outport = mock("Outport")
+      mock_destination = mock("Destination")
+      @live_midi.instance_variable_set(:@outport, mock_outport)
+      @live_midi.instance_variable_set(:@destination, mock_destination)
+      
+      LiveMidi::C.should_receive(:mIDISend).with(mock_outport, mock_destination, @mock_packet_list)
+      @live_midi.message(*@args)
+    end
+    
+  end
 
 end

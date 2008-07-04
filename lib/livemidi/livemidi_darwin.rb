@@ -33,11 +33,27 @@ class LiveMidi
     C.mIDIClientCreate(client_name, nil, nil, @client.ref)
     
     output_name = CF.cFStringCreateWithCString(nil, "Output", 0)
-    @output = DL::PtrData.new(nil)
-    C.mIDIOutputPortCreate(@client, output_name, @output.ref)
+    @outport = DL::PtrData.new(nil)
+    C.mIDIOutputPortCreate(@client, output_name, @outport.ref)
 
-    num_dest =LiveMidi::C.mIDIGetNumberOfDestinations
+    num_dest = C.mIDIGetNumberOfDestinations
     raise NoNumberOfDestinations unless num_dest > 0
-    @destination = LiveMidi::C.mIDIGetDestination(0)
+    @destination = C.mIDIGetDestination(0)
   end
+
+  def close
+    C.mIDIClientDispose(@client)
+  end
+
+  def message(*args)
+    format = "C" * args.size
+    bytes = args.pack(format).to_ptr
+
+    packet_list = DL.malloc(256)
+    packet_list_ptr = C.mIDIPacketListInit(packet_list)
+
+    C.mIDIPacketListAdd(packet_list, 256, packet_list_ptr, 0, 0, args.size, bytes)
+    C.mIDISend(@outport, @destination, packet_list)
+  end
+  
 end
