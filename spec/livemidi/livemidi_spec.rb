@@ -52,9 +52,56 @@ describe LiveMidi do
   end
 
   describe "platform loading" do
-    it "should load livemidi_windows if the PLATFORM is a variant of windows"
-    it "should load livemidi_linux if the PLATFORM is a variant of linux"
-    it "should load livemidi_darwin if the PLATFORM is a variant of darwin/OSX"
+
+    def should_have_loaded(some_file)
+      $LOADED_FEATURES.should include(some_file)
+    end
+
+    before :each do
+      class Object
+        ORIGINAL_RUBY_PLATFORM = RUBY_PLATFORM
+        remove_const "RUBY_PLATFORM"
+
+        alias :old_load :load
+
+        def load(file)
+          $LOADED_FEATURES << file
+        end
+      end
+    end
+
+    after :each do
+      class Object
+        RUBY_PLATFORM = ORIGINAL_RUBY_PLATFORM
+
+        undef_method :load
+        alias :load :old_load
+      end
+    end
+    
+    it "should load livemidi_windows if the PLATFORM is a variant of windows" do
+      RUBY_PLATFORM = "windows"
+      old_load "livemidi/livemidi.rb"
+      should_have_loaded "livemidi/livemidi_windows.rb"
+    end
+    
+    it "should load livemidi_linux if the PLATFORM is a variant of linux" do
+      RUBY_PLATFORM = "linux"
+      old_load "livemidi/livemidi.rb"
+      should_have_loaded "livemidi/livemidi_linux.rb"
+    end
+    
+    it "should load livemidi_darwin if the PLATFORM is a variant of darwin/OSX" do
+      RUBY_PLATFORM = "darwin"
+      old_load "livemidi/livemidi.rb"
+      should_have_loaded "livemidi/livemidi_darwin.rb"
+    end
+
+    it "should through an UnsupportedPlatformException if it doesn't understand the platform" do
+      RUBY_PLATFORM = "unsupprted"
+      lambda { old_load "livemidi/livemidi.rb" }.should raise_error(LiveMidi::UnsupportedPlatformException)
+    end
+      
   end
   
 end

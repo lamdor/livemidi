@@ -16,3 +16,19 @@ class LiveMidi
   end
   
 end
+
+class LiveMidi
+  class UnsupportedPlatformException < Exception
+  end
+end
+
+case RUBY_PLATFORM
+  when /windows/
+  load "livemidi/livemidi_windows.rb"
+  when /linux/
+  load "livemidi/livemidi_linux.rb"
+  when /darwin/
+  load "livemidi/livemidi_darwin.rb"
+  else
+  raise LiveMidi::UnsupportedPlatformException
+end
