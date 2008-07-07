@@ -3,6 +3,22 @@ class LiveMidi
   OFF = 0x80
   PROGRAM_CHANGE = 0xC0
 
+  @@hooks =  { }
+  def self.add_hook_for(step, method_name)
+    @@hooks[step] ||= []
+    @@hooks[step] << method_name
+  end
+
+  def run_hooks(step)
+    if @@hooks[step]
+      @@hooks[step].each { |method_name| self.send(method_name.to_sym) }
+    end
+  end
+
+  def initialize
+    run_hooks :initialize
+  end
+
   def note_on(channel, note, velocity = 64)
     message(ON | channel, note, velocity)
   end
