@@ -104,22 +104,8 @@ describe LiveMidi do
       
   end
 
-  describe "hooks for initialize" do
-
-    it "should add a hook" do
-      class LiveMidi
-        add_hook_for :initialize, :open
-
-        attr_reader :open_called
-        def open
-          @open_called = true
-        end
-      end
-
-      livemidi = LiveMidi.new
-      livemidi.open_called.should be_true
-    end
-    
+  it "should be hookable" do
+    LiveMidi.include?(Hookable).should be_true
   end
   
 end
