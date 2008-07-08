@@ -5,7 +5,6 @@ require 'livemidi/timer'
 class Metronome
   def initialize(bpm)
     @midi = LiveMidi.new
-    @midi.open
     @midi.program_change(0, 115)
     @interval = 60.0 / bpm
     @timer = Timer.new(@interval / 10)
