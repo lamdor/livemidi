@@ -10,6 +10,7 @@ class LiveMidi
     extern "int midiOutShortMsg(int,int)"
   end
 
+  add_hook_for :initialize, :open
   def open
     @device = DL.malloc(DL.sizeof('I'))
     C.midiOutOpen(@device, -1, 0, 0, 0)

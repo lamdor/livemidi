@@ -7,10 +7,15 @@ class LiveMidi
 
   module CF
   end
+
 end
 
 
 describe LiveMidi do
+
+  before :each do
+    LiveMidi.stub!(:add_hook_for)
+  end
 
   describe "dl loading" do
     def expect_c_extern(method)
@@ -33,6 +38,8 @@ describe LiveMidi do
 
       LiveMidi::CF.should_receive(:extern).with("void * CFStringCreateWithCString(void *, char *, int)")
       
+
+      LiveMidi.should_receive(:add_hook_for).with(:initialize, :open)
       load "livemidi/livemidi_darwin.rb"
     end
 
@@ -44,18 +51,18 @@ describe LiveMidi do
       @mock_client = mock("client")
       @mock_output = mock("output")
       
-      DL::PtrData.should_receive(:new).with(nil).exactly(2).and_return(@mock_client, @mock_output)
+      DL::PtrData.stub!(:new).with(nil).and_return(@mock_client, @mock_output, @mock_client, @mock_output)
       
-      LiveMidi::CF.should_receive(:cFStringCreateWithCString).with(nil, "RubyMIDI", 0).and_return("Client Name")
-      LiveMidi::CF.should_receive(:cFStringCreateWithCString).with(nil, "Output", 0).and_return("Output name")
+      LiveMidi::CF.stub!(:cFStringCreateWithCString).with(nil, "RubyMIDI", 0).and_return("Client Name")
+      LiveMidi::CF.stub!(:cFStringCreateWithCString).with(nil, "Output", 0).and_return("Output name")
 
       mock_client_ref = mock("client ref")
       @mock_client.stub!(:ref).and_return(mock_client_ref)
-      LiveMidi::C.should_receive(:mIDIClientCreate).with("Client Name", nil, nil, mock_client_ref)
+      LiveMidi::C.stub!(:mIDIClientCreate).with("Client Name", nil, nil, mock_client_ref)
 
       mock_output_ref = mock("output ref")
-      @mock_output.should_receive(:ref).and_return(mock_output_ref)
-      LiveMidi::C.should_receive(:mIDIOutputPortCreate).with(@mock_client, "Output name", mock_output_ref)
+      @mock_output.stub!(:ref).and_return(mock_output_ref)
+      LiveMidi::C.stub!(:mIDIOutputPortCreate).with(@mock_client, "Output name", mock_output_ref)
 
       @mock_destination = mock("destination")
 

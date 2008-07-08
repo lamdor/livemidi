@@ -26,7 +26,7 @@ class LiveMidi
     extern "void * CFStringCreateWithCString(void *, char *, int)"
   end
 
-
+  add_hook_for :initialize, :open
   def open
     client_name = CF.cFStringCreateWithCString(nil, "RubyMIDI", 0)
     @client = DL::PtrData.new(nil)
